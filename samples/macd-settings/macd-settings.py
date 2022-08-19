@@ -134,7 +134,8 @@ DATASETS = {
     'orcl': '../../datas/orcl-1995-2014.txt',
     'nvda': '../../datas/nvda-1999-2014.txt',
     'audusd': '../../datas/forex/AUD_USD_15min_20220816_19.txt',
-    'usdjpy': '../../datas/forex/USD_JPY_15min_20220816_19.txt'
+    'usdjpy': '../../datas/forex/USD_JPY_15min_20220816_19.txt',
+    'eurusd': '../../datas/forex/ohlc_EUR_USD_D_2018_2022.txt'
 }
 
 
@@ -159,7 +160,17 @@ def runstrat(args=None):
 
     # if dataset is None, args.data has been given
     dataname = DATASETS.get(args.dataset, args.data)
-    data0 = bt.feeds.YahooFinanceCSVData(dataname=dataname, **dkwargs)
+    #data0 = bt.feeds.YahooFinanceCSVData(dataname=dataname, **dkwargs)
+    ds = {'usdjpy': 'c:/workspace/backtrader/datas/forex/USD_JPY_15min_20220816_19.txt',
+          'eurusd': 'c:/workspace/backtrader/datas/forex/ohlc_EUR_USD_D_2018_2022.txt'}
+    data0 = bt.feeds.GenericCSVData(
+        dataname=ds['eurusd'],
+        fromdate=datetime.datetime(2018, 8, 19),
+        todate=datetime.datetime(2022, 8, 18),
+        nullvalue=0.0,
+        dtformat=('%Y-%m-%d %H:%M:%S'))
+
+
     cerebro.adddata(data0)
 
     cerebro.addstrategy(TheStrategy,
@@ -218,11 +229,11 @@ def parse_args(pargs=None):
                         help='Choose one of the predefined data sets')
 
     parser.add_argument('--fromdate', required=False,
-                        default='2022-08-16',
+                        default='2022-08-18',
                         help='Starting date in YYYY-MM-DD format')
 
     parser.add_argument('--todate', required=False,
-                        default='2022-08-19',
+                        default='2018-08-19',
                         help='Ending date in YYYY-MM-DD format')
 
     parser.add_argument('--cash', required=False, action='store',
