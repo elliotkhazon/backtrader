@@ -21,7 +21,6 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-
 import argparse
 import datetime
 import random
@@ -77,7 +76,7 @@ class TheStrategy(bt.Strategy):
         ('macd2', 26),
         ('macdsig', 9),
         ('atrperiod', 14),  # ATR Period (standard)
-        ('atrdist', 3.0),   # ATR distance for stop price
+        ('atrdist', 3.0),  # ATR distance for stop price
         ('smaperiod', 30),  # SMA Period (pretty standard)
         ('dirperiod', 10),  # Lookback period to consider SMA trend direction
     )
@@ -134,6 +133,9 @@ DATASETS = {
     'yhoo': '../../datas/yhoo-1996-2014.txt',
     'orcl': '../../datas/orcl-1995-2014.txt',
     'nvda': '../../datas/nvda-1999-2014.txt',
+    'audusd': '../../datas/forex/AUD_USD_15min_20220816_19.txt',
+    'usdjpy': '../../datas/forex/USD_JPY_15min_20220816_19.txt',
+    'eurusd': '../../datas/forex/ohlc_EUR_USD_D_2018_2022.txt'
 }
 
 
@@ -158,7 +160,17 @@ def runstrat(args=None):
 
     # if dataset is None, args.data has been given
     dataname = DATASETS.get(args.dataset, args.data)
-    data0 = bt.feeds.YahooFinanceCSVData(dataname=dataname, **dkwargs)
+    #data0 = bt.feeds.YahooFinanceCSVData(dataname=dataname, **dkwargs)
+    ds = {'usdjpy': 'c:/workspace/backtrader/datas/forex/USD_JPY_15min_20220816_19.txt',
+          'eurusd': 'c:/workspace/backtrader/datas/forex/ohlc_EUR_USD_D_2018_2022.txt'}
+    data0 = bt.feeds.GenericCSVData(
+        dataname=ds['eurusd'],
+        fromdate=datetime.datetime(2018, 8, 19),
+        todate=datetime.datetime(2022, 8, 18),
+        nullvalue=0.0,
+        dtformat=('%Y-%m-%d %H:%M:%S'))
+
+
     cerebro.adddata(data0)
 
     cerebro.addstrategy(TheStrategy,
@@ -204,7 +216,6 @@ def runstrat(args=None):
 
 
 def parse_args(pargs=None):
-
     parser = argparse.ArgumentParser(
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
         description='Sample for Tharp example with MACD')
@@ -214,19 +225,19 @@ def parse_args(pargs=None):
                         help='Specific data to be read in')
 
     group1.add_argument('--dataset', required=False, action='store',
-                        default=None, choices=DATASETS.keys(),
+                        default='nvda', choices=DATASETS.keys(),
                         help='Choose one of the predefined data sets')
 
     parser.add_argument('--fromdate', required=False,
-                        default='2005-01-01',
+                        default='2022-08-18',
                         help='Starting date in YYYY-MM-DD format')
 
     parser.add_argument('--todate', required=False,
-                        default=None,
+                        default='2018-08-19',
                         help='Ending date in YYYY-MM-DD format')
 
     parser.add_argument('--cash', required=False, action='store',
-                        type=float, default=50000,
+                        type=float, default=10000,
                         help=('Cash to start with'))
 
     parser.add_argument('--cashalloc', required=False, action='store',
